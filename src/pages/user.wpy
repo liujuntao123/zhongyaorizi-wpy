@@ -1,0 +1,32 @@
+<template>
+    <view>
+         <view class="header section">
+            <image class="avatar" src="{{ avatarUrl }}" />
+            <text class="nickname">{{ nickName }}</text>
+        </view>
+
+        <view class="item divider" @tap="bindViewTap('myGifts')">
+            <image class="icon" src="../assets/img/icon_gift.png" />
+            <text class="title">纪念日</text>
+            <text class="subtitle">{{ giftIncome }}个</text>
+            <image class="arrow" src="../assets/img/icon_right_arrow.png" />
+        </view>
+
+        <view class="item divider" @tap="bindViewTap('myGifts')">
+            <image class="icon" src="../assets/img/icon_gift.png" />
+            <text class="title">倒数日</text>
+            <text class="subtitle">{{ giftIncome }}个</text>
+            <image class="arrow" src="../assets/img/icon_right_arrow.png" />
+        </view>
+
+
+    </view>
+</template>
+
+<script>
+import wepy from 'wepy'
+
+export default class User extends wepy.page {
+    
+}
+</script>

@@ -1,0 +1,64 @@
+var fixSingleNumber = function (n) {
+  if (n <= 9) {
+    n = '0' + n
+  }
+  return n
+}
+
+module.exports = {
+  formatDate: function (str) {
+    if (!str) {
+      return ''
+    }
+    var d = getDate(str)
+    return d.getFullYear() + '-' + fixSingleNumber(d.getMonth() + 1) + '-' + fixSingleNumber(d.getDate())
+  },
+  formatTime: function (str) {
+    if (!str) {
+      return ''
+    }
+    var d = getDate(str)
+    return d.getFullYear() + '-' + fixSingleNumber(d.getMonth() + 1) + '-' + fixSingleNumber(d.getDate()) +
+      ' ' + fixSingleNumber(d.getHours()) + ':' + fixSingleNumber(d.getMinutes())
+  },
+  shipStatus: function (str) {
+    switch (str) {
+      case 'WAITING_DELIVERY':
+        return 'not-shipped'
+      case 'CONFIRMED_DELIVERY':
+        return 'shipped'
+      case 'CONFIRMED_RECEIVED':
+      case 'TIMEOUT_RECEIVED':
+        return 'finished'
+      case 'EXCEPTION_DELIVERY':
+      case 'MANUAL_CLOSE':
+      default:
+        return 'closed'
+    }
+  },
+  orderStatus: function (str) {
+    var statusMaps = {
+      'WAITING_DELIVERY': { text: '处理完成', isButton: true, color: 'default' },
+      // 'CONFIRMED_DELIVERY':{text:'待收货',color:'red'},
+      'CONFIRMED_DELIVERY': { text: '', color: 'red' },
+      'CONFIRMED_RECEIVED': { text: '交易完成', color: 'green' },
+      'EXCEPTION_DELIVERY': { text: '发货超时', color: 'gray' }
+    }
+    return statusMaps[str]
+  },
+  formatMyGiftNickname: function (name) {
+    var maxLen = 8
+    if (name.length > maxLen) {
+      return name.substring(0, maxLen) + '...'
+    }
+    return name
+  },
+  formatDateCount: function (str) {
+    var today = getDate()
+    today=getDate(today.getFullYear() + '-' + fixSingleNumber(today.getMonth() + 1) + '-' + fixSingleNumber(today.getDate()))
+    var date = getDate(str)
+    var dateDiff = today.getTime() - date.getTime() //时间差的毫秒数
+    var dayDiff = Math.floor(dateDiff / (24 * 3600 * 1000))
+    return dayDiff
+  },
+}

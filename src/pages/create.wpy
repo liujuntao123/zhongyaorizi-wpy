@@ -1,0 +1,205 @@
+<template>
+    <view class="container">
+    <i-panel>
+        <i-input disabled="{{id}}" value="{{ record.name }}" bind:change="handleNameChange" title="名称" placeholder="事件名称" maxlength="20"/>
+        <picker mode="date" value="{{record.date}}" bindchange="bindDateChange">
+            <i-input value="{{ record.date }}" title="日期" />
+        </picker>
+        <i-input value="{{ record.remarks }}" bind:change="handleRemarksChange" type="textarea" title="备注" placeholder="请输入备注以提醒自己(最多50字)" maxlength="50" />
+        <i-cell title="置顶" i-class="switch-cell">
+            <i-switch value="{{record.topping}}" bind:change="onToppingToggle" slot="footer"></i-switch>
+        </i-cell>
+    </i-panel>
+    <view class="button-container">
+        <i-button class="my-button" bind:click="handleConfirmCreate" type="success">保存</i-button>
+        <i-button class="my-button" bind:click="handleDelete" type="error">删除</i-button>
+    </view>
+    <i-modal title="提示" visible="{{ confirmDeleteVisible }}" actions="{{ confirmDeleteActions }}" bind:click="handleConfirmDelete" >
+        <view>确定删除事件吗？</view>
+    </i-modal>
+    <i-toast id="toast" />
+</view>
+</template>
+
+<script>
+import wepy from 'wepy'
+import {formatDate} from '../utils/formater'
+import {cloudFunction} from '../utils/cloudFunction'
+import {showTip, loading, loaded, showSuccess} from '../utils/tip'
+
+export default class Create extends wepy.page{
+    config={
+        navigationBarTitleText: '编辑',
+        usingComponents: {
+            "i-button": "../resource/button/index",
+            "i-input": "../resource/input/index",
+            "i-panel": "../resource/panel/index",
+            "i-switch": "../resource/switch/index",
+            "i-cell": "../resource/cell/index",
+            "i-modal": "../resource/modal/index",
+            "i-toast": "../resource/toast/index"
+        }
+    }
+    data={
+        id:'',
+        record: {
+            name: '',
+            date: '',
+            remarks: '',
+            topping: 0,
+        },
+        confirmCreateVisible: false,
+        confirmCreateActions: [
+            {
+                name: '取消',
+            },
+            {
+                name: '确定',
+                color: 'green',
+                loading: false,
+            },
+        ],
+        confirmDeleteVisible: false,
+        confirmDeleteActions: [
+            {
+                name: '取消',
+            },
+            {
+                name: '确定',
+                color: 'green',
+                loading: false,
+            },
+        ],
+    }
+
+    onShareAppMessage(o){
+      console.log(o)
+    }
+
+    onLoad(query){
+        console.log(query)
+        if(query){
+            this.id=query.id
+            this.record.date=query.date
+        }
+        this.initData()
+        let myDate = new Date()
+        this.record.date=this.record.date||formatDate(myDate)
+        this.$apply()
+    }
+
+    checkInvalid() {
+        if (!this.data.record.name) {
+            showTip('请输入事件名称')
+            return true
+        }
+    }
+
+    initData(){
+        if(!this.id){
+            return
+        }
+        loading()
+        cloudFunction('getRecords',{data:{id:this.id}}).then(res => {
+            loaded()
+            this.loaded=true
+            if (res) {
+                let data = res.result.data
+                this.record=data
+                console.log(data)
+            }
+            this.$apply()
+        }).catch(err=>{
+            console.log('拉取失败')
+            loaded()
+        })
+    }
+
+    handleConfirmDelete() {
+        // 调用删除云函数
+        loading()
+        cloudFunction('delete',{data:{id:this.id}}).then(res => {
+            showSuccess('删除成功')
+            setTimeout(() => {
+                wx.switchTab({
+                    url:'index'
+                })
+            }, 500);
+        }).catch(console.error).then(()=>{
+            loaded()
+        })
+    }
+
+    methods={
+        handleNameChange: function({ detail }) {
+        this.setData({
+            'record.name': detail.detail.value,
+        })
+        },
+        handleRemarksChange: function({ detail }) {
+            this.setData({
+                'record.remarks': detail.detail.value,
+            })
+        },
+
+        bindDateChange: function(e) {
+            console.log('picker发送选择改变，携带值为', e.detail.value)
+            this.setData({
+                'record.date': e.detail.value,
+            })
+        },
+        
+        handleConfirmCreate: function() {
+            if (this.checkInvalid()) {
+                return
+            }
+            loading()
+            console.log('创建事件')
+            cloudFunction('create', { data: this.data.record }).then(res => {
+                loaded()
+                if (res) {
+                    showSuccess('保存成功')
+                    setTimeout(() => {
+                        wx.switchTab({
+                            url: 'index',
+                        })
+                    }, 500)
+                } else {
+                    showTip('保存失败')
+                }
+            })
+        },
+        handleDelete: function() {
+            let self=this
+            wx.showModal({
+                title: '提示',
+                content: '确认删除吗？',
+                success (res) {
+                    if (res.confirm) {
+                    self.handleConfirmDelete()
+                    } else if (res.cancel) {
+                    console.log('用户点击取消')
+                    }
+                }
+            })
+        },
+        
+        onToppingToggle: function() {
+            this.setData({
+                'record.topping': 1-this.data.record.topping,
+            })
+        },
+    }
+}
+</script>
+
+<style lang="less">
+.button-container{
+    padding-top: 15px;
+}
+.switch-cell{
+    width: 125px;
+}
+</style>
+
+
