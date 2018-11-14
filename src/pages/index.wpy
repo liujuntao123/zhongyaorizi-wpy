@@ -8,34 +8,14 @@
              wx:if="{{ records.length === 0 && loaded }}"
              :tipText.sync="noListTip"
     />
-    <view wx:for="{{records}}" wx:for-index="idx" wx:for-item="item" wx:key="*this" class="cell-box" @tap="bindCellTap({{ idx }})">
+    <view wx:for="{{records}}" wx:for-index="idx" wx:for-item="item" wx:key="*this" class="cell-box {{'color-'+idx%10}}" @tap="bindCellTap({{ idx }})">
       <view class="order-info">
-        <view class="img-box">
-          <image class="img" src="{{'../assets/images/'+item.img_url}}"/>
-        </view>
-        <view class="content">
           <view class="title">{{item.name}}</view>
-          <view class="date">{{item.date}}</view>
           <view class="date-count">
             <text class="dateText">{{item.dateText}} </text>
             <text wx:if="{{item.dateCount!='0'}}" class="dateCount">{{item.dateCount}}</text>
             <text wx:if="{{item.dateCount!='0'}}"> 天</text>
           </view>
-          <view class="tag-container">
-            <i-tag 
-              class="i-tags"
-              color="{{item.color}}">
-              {{item.tagText}}
-          </i-tag>
-          </view>
-        </view>
-      </view>
-      <view class="divide-line"></view>
-      <view class="receive-info">
-        <view class="row receiver">
-          <view class="label">备注</view>
-          <view class="name">{{item.remarks}}</view>
-        </view>
       </view>
     </view>
     <view class="button-container">
@@ -84,7 +64,9 @@ export default class Index extends wepy.page {
     }
 
     onShareAppMessage(o){
-      console.log(o)
+      return {
+        imageUrl: '../assets/images/cover.png'
+      }
     }
 
     methods = {
@@ -98,9 +80,7 @@ export default class Index extends wepy.page {
       },
       bindCellTap(idx){
         let id=this.records[idx]._id
-        wx.navigateTo({
-          url:'/pages/create?id='+id,
-        })
+        this.$navigate('detail',{id,color:idx%10})
       }
     }
 
@@ -120,11 +100,11 @@ export default class Index extends wepy.page {
         let tagText=''
         let color=''
         if(dayDiff>0){
-          text='已过去'
+          text='过去'
           tagText='纪念日'
           color='blue'
         }else if(dayDiff<0){
-          text='还剩下'
+          text='剩下'
           tagText='倒数日'
           color='yellow'
         }else{
@@ -199,52 +179,25 @@ export default class Index extends wepy.page {
     }
 
     .cell-box {
-      background: #ffffff;
       overflow: hidden;
-      margin-top: 10rpx;
       .order-info {
-        height: 150rpx;
-        padding: 30rpx;
-        .img-box {
-          /*display: inline-block;*/
-          padding-right: 40rpx;
-          height: 100%;
-          overflow: hidden;
-          float: left;
-          .img {
-            width: 140rpx;
-            height: 140rpx;
-          }
+        // height: 100rpx;
+        padding: 80rpx 50rpx;
+        .title {
+          display: inline-block;
+          font-size: 40rpx;
+          color: #333333;
+          font-weight: bold;
+          width: 70%;
         }
-        .content {
-          overflow: hidden;
-          /*display: inline-block;*/
-          width: 510rpx;
-          height: 100%;
-          position: relative;
-          float: left;
-          // padding: 24rpx 34rpx 30rpx 0;
-          .title {
-            font-size: 28rpx;
-            color: #333333;
+        .date-count {
+          display: inline-block;
+          font-size: 24rpx;
+          text-align: right;
+          width: 30%;
+          .dateCount{
             font-weight: bold;
-            width: 350rpx;
-          }
-          .date {
-            position: absolute;
-            left: 0;
-            bottom: 20rpx;
-            color: #999999;
-            font-size: 24rpx;
-          }
-          .date-count {
-            position: absolute;
-            top: 0;
-            right: 0;
-            font-size: 24rpx;
-            .dateCount{
-              font-weight: bold;
-            }
+            font-size: 48rpx;
           }
         }
       }
@@ -319,4 +272,38 @@ export default class Index extends wepy.page {
   }
 
 </style>
+
+<style lang="less">
+.color-0{
+    background: #A4C7D5;
+  }
+  .color-1{
+    background: #8DB9CB;
+  }
+  .color-2{
+    background: #8CC5CC;
+  }
+  .color-3{
+    background: #8BD7CF;
+  }
+  .color-4{
+    background: #8CE3D1;
+  }
+  .color-5{
+    background: #B5838D;
+  }
+  .color-6{
+    background: #E5989B;
+  }
+  .color-7{
+    background: #FFB4A2;
+  }
+  .color-8{
+    background: #FFCDB2;
+  }
+  .color-9{
+    background: #F8F9E1;
+  }
+</style>
+
 

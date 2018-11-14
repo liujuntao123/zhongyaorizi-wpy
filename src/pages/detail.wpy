@@ -1,0 +1,184 @@
+<template>
+    <view class="container color-{{color}}">
+        <view class="card">
+            <view class="title">{{record.name}}</view>
+            <view class="date-count">
+                <text class="date-text">{{record.dateText}}</text>
+                <text wx:if="{{record.dateCount!='0'}}" class="dateCount">{{record.dateCount}}</text>
+                <text wx:if="{{record.dateCount!='0'&&record.dateText}}"> 天</text>
+                </view>
+            <view class="date">{{record.date}}</view>
+            <view wx:if="{{record.remarks}}" class="remarks">{{record.remarks}}</view>
+        </view>
+        <view class="btn-container">
+            <i-button bind:click="handleEditRecord" type="success">编辑</i-button>
+        </view>
+    </view>
+</template>
+
+<script>
+import wepy from 'wepy'
+import {cloudFunction} from '../utils/cloudFunction'
+import {showTip, loading, loaded, showSuccess} from '../utils/tip'
+
+export default class Detail extends wepy.page {
+    config={
+        navigationBarTitleText: '重要日子助手',
+        usingComponents: {
+            "i-button": "../resource/button/index",
+        }
+    }
+
+    data={
+        record:{},
+        id:'',
+        color:'',
+    }
+
+    methods={
+        handleEditRecord(){
+            this.$navigate('create',{id:this.id})
+        }
+    }
+
+    onShareAppMessage(o){
+      return {
+        imageUrl: '../assets/images/cover.png'
+      }
+    }
+
+    onLoad(query){
+        console.log(query)
+        if(query){
+            this.id=query.id
+            this.color=query.color
+        }
+        this.initData()
+        this.$apply()
+    }
+
+    initData(){
+        loading()
+        cloudFunction('getRecords',{data:{id:this.id}}).then(res => {
+            loaded()
+            this.loaded=true
+            if (res) {
+                let element = res.result.data
+                const fixSingleNumber=number=>number<=9?'0'+number:number
+                let date = new Date(element.date)
+                let today = new Date()
+                today=new Date(today.getFullYear() + '-' + fixSingleNumber(today.getMonth() + 1) + '-' + fixSingleNumber(today.getDate()))
+                let dateDiff = today.getTime() - date.getTime() //时间差的毫秒数
+                let dayDiff = Math.floor(dateDiff / (24 * 3600 * 1000))
+                let text=''
+                let tagText=''
+                let color=''
+                if(dayDiff>0){
+                text='过去'
+                tagText='纪念日'
+                color='blue'
+                }else if(dayDiff<0){
+                text='剩下'
+                tagText='倒数日'
+                color='yellow'
+                }else{
+                text='就在今天'
+                tagText='今天'
+                color='red'
+                }
+                element.dateText=text
+                element.dateCount=Math.abs(dayDiff)
+                element.tagText=tagText
+                element.color=color
+                this.record=element
+            }
+            this.$apply()
+        }).catch(err=>{
+            console.log('拉取失败')
+            loaded()
+        })
+    }
+}
+</script>
+
+<style lang="less" scoped>
+.container{
+    position: relative;
+    overflow: hidden;
+    height: 100%;
+    .card{
+        width: 550rpx;
+        height: 800rpx;
+        margin: 60rpx auto;
+        background: white;
+        box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+        border-radius: 5px;
+        padding: 50rpx;
+        .title{
+            color: #333333;
+            font-size: 60rpx;
+        }
+        .date-count{
+            height: 350rpx;
+            line-height: 400rpx;
+            text-align: center;
+            .dateCount{
+                font-size: 150rpx;
+                font-weight: bold;
+            }
+        }
+        .date{
+            font-size: 50rpx;
+            text-align: center;
+        }
+        .remarks{
+            margin-top: 100rpx;
+            background: #F4F4F4;
+            line-height: 50rpx;
+            padding: 20rpx;
+            font-size: 24rpx;
+            color: #333333;
+        }
+    }
+    .btn-container{
+        width: 550rpx;
+        margin: 0 auto;
+    }
+
+}
+</style>
+
+<style lang="less">
+  .color-0{
+      background-image: linear-gradient(to bottom , #A4C7D5, #fff);
+  }
+  .color-1{
+      background-image: linear-gradient(to bottom , #8DB9CB, #fff);
+  }
+  .color-2{
+      background-image: linear-gradient(to bottom , #8CC5CC, #fff);
+  }
+  .color-3{
+      background-image: linear-gradient(to bottom , #8BD7CF, #fff);
+  }
+  .color-4{
+      background-image: linear-gradient(to bottom , #8CE3D1, #fff);
+  }
+  .color-5{
+      background-image: linear-gradient(to bottom , #B5838D, #fff);
+  }
+  .color-6{
+      background-image: linear-gradient(to bottom , #E5989B, #fff);
+  }
+  .color-7{
+      background-image: linear-gradient(to bottom , #FFB4A2, #fff);
+  }
+  .color-8{
+      background-image: linear-gradient(to bottom , #FFCDB2, #fff);
+  }
+  .color-9{
+      background-image: linear-gradient(to bottom , #F8F9E1, #fff);
+  }
+</style>
+
+

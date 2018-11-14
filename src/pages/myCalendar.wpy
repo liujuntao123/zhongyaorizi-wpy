@@ -25,13 +25,8 @@
 
         <view class="list">
             <view wx:for="{{items}}" wx:for-index="idx" wx:for-item="item" wx:key="idx" class="cell" @tap="bindItemTap({{item}})">
-
-            <view class="cover_section">
-                <image class="cover" mode="aspectFill" src="../assets/images/{{ item.img_url }}"/>
-            </view>
-
-            <text class="item_title">{{ item.name }}</text>
-            <text class="date">{{ filter.formatDate(item.utime) }}</text>
+            <view class="item_title">{{ item.name }}</view>
+            <view class="remarks">{{ item.remarks }}</view>
             </view>
         </view>
         <view class="button-container">
@@ -77,7 +72,9 @@ export default class MyCalendar extends wepy.page {
     }
 
     onShareAppMessage(o){
-      console.log(o)
+      return {
+        imageUrl: '../assets/images/cover.png'
+      }
     }
 
     loadDayStyle(){
@@ -91,15 +88,15 @@ export default class MyCalendar extends wepy.page {
             const dateStr=formatDate(date)
             if(this.activeDay==dateStr){
                 days_style.push({
-                    month: 'current', day: i, color: 'white', background: '#aad4f5'
+                    month: 'current', day: i, color: 'white', background: '#b49eeb'
                 })
             }else if(i==today&&this.month==toMonth){
                 days_style.push({
-                    month: 'current', day: i, color: 'white', background: '#f5a8f0'
+                    month: 'current', day: i, color: 'white', background: '#DDDDDE'
                 })
             }else if(this.records.some(item=>item.date==dateStr)){
                 days_style.push({
-                    month: 'current', day: i, color: 'white', background: '#b49eeb'
+                    month: 'current', day: i, color: 'white', background: '#aad4f5'
                 })
             }
             
@@ -299,73 +296,27 @@ export default class MyCalendar extends wepy.page {
   .cell {
     /*display: flex;*/
     position: relative;
-    height: 200rpx;
+    height: 100rpx;
     margin-bottom: 2rpx;
     background-color: white;
-
-    .cover_section {
-      position: relative;
-      width: 140rpx;
-      height: 140rpx;
-
-      top: 30rpx;
-      left: 30rpx;
-
-      .cover {
-        width: 100%;
-        height: 100%;
-        border-radius: 20rpx;
-      }
-
-      .in_review {
-        background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEoAAAAfCAYAAABAk1s1AAAAAXNSR0IArs4c6QAAAWhJREFUaAXt2TFOw0AQBdCZdehSURKJJhIodklOABISHdyBEyCFmhpqRENPB6kD5AShtFPRUFBSpQI5w66lRPas5wT+WyT7/7h6smMpywf5TKjDi4lXxPRNQgsimfbT3ekHj/80CXcdSoMQ8WfCbrJMT17qM1cP2AcBGZZSPh8Wr7c3IlufHnDaBURk8rR8C8Pr8LEVCwGrKRCwRsX7RWgB1bSJUinruyNZ7AAqotGFDFfFzzmgtEtrZkC1uuiSaYw7SqO0ZaE9QLXBqE5I+oBSKFYElCWjekApECsCypJRPaAUiBUBZcmoHlAKxIqAsmRUDygFYkVAWTKqB5QCsSKgLBnVu+q4RpWIsYDzh3pfcY1GCzhmmukSORZwiSSP/qR0HY/Q1AVckR3n/hf9oV5iHwtUb71kNLhionk8RrMRqKByzn576eDMvwLv8RhuaJrf/kZqrjSfZyWXlyJ06of74f/i5hXdTP/t7kr55HqlAQAAAABJRU5ErkJggg==') no-repeat center center;
-      }
-
-      .reject_review {
-        background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEoAAAAfCAYAAABAk1s1AAAAAXNSR0IArs4c6QAAAW5JREFUaAXt2T1Ow0AQBeCdjZGbHMCioKFCtJwBKYUTuAMnQAp1anqEFHGDSJAoHQUnQOkoaShQDpAqCR5mLSXyznpO4Oci8Xvr6tP+SDZty5Jdhy8i2gjAr2P+9ETzXlHMaTrdaRLqOpQGcUTfAjbOFou35phvBtyLAPN5VVWvu+HwkSeTo08GnHYBZh7vV6sw+BB+jmIh4IoFaqzR6Da02KNimzTJnnVSFBeYUSlN3Mie9bde3wAqZmlNFTOgWmV0SXSFGaVRWjI5dwqoFhhdyenXB5RWMTKgDBhdA0qLGBlQBoyuAaVFjAwoA0bXgNIiRgaUAaNrQGkRIwPKgNE1oLSIkQFlwOhaPjjQRpfIqYCXb1o/aY1GC3h51/KuS+RUwGfML7L8qnQITVPA03L5JbPquVniPhWoT71ent/LrPpIh9EcBGooms22WZ4P5Ah8wjI80MT/surii8vyck90J6fhtQyehffF8RPdTP+4i07c6xWAlgAAAABJRU5ErkJggg==') no-repeat center center;
-      }
-
-      .review {
-        width: 74rpx;
-        height: 32rpx;
-        position: absolute;
-        right: 0rpx;
-        top: 0rpx;
-        z-index: 233;
-        background-size: cover;
-
-        .review_text {
-          font-family: PingFangSC-Regular;
-          font-size: 18rpx;
-          color: white;
-          position: absolute;
-          width: 56rpx;
-          height: 25rpx;
-          top: 2rpx;
-          right: 7rpx;
-        }
-      }
-    }
-
+    padding: 50rpx;
+    line-height: 100rpx;
     .item_title {
       font-family: PingFangSC-Medium;
-      font-size: 28rpx;
-      color: #333333;
-
-      position: absolute;
-      left: 210rpx;
-      top: 30rpx;
-      right: 30rpx;
+      font-size: 38rpx;
+      display: inline-block;
+      width: 40%;
+      overflow: hidden;
     }
-
-    .date {
+    .remarks {
       font-family: PingFangSC-Regular;
       font-size: 24rpx;
       color: #7B8196;
-
-      position: absolute;
-      left: 210rpx;
-      bottom: 30rpx;
+      display: inline-block;
+      overflow: hidden;
+      text-align: right;
+      width: 50%;
+      margin-left: 10%;
     }
   }
     .button-container{
@@ -380,14 +331,14 @@ export default class MyCalendar extends wepy.page {
     }
     .my-button{
         display: inline-block;
-        width:40px;
-        height:40px;
+        width:50px;
+        height:50px;
         color:#fff;
         background:#19be6b;
         border-radius:50%;
-        line-height:40px;
+        line-height:50px;
         text-align:center;
-        margin-right: 10rpx;
+        margin-right: 20rpx;
     }
     .my-button.primary{
         background:#2d8cf0;

@@ -73,7 +73,9 @@ export default class Create extends wepy.page{
     }
 
     onShareAppMessage(o){
-      console.log(o)
+      return {
+        imageUrl: '../assets/images/cover.png'
+      }
     }
 
     onLoad(query){

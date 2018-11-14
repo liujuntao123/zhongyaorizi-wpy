@@ -16,6 +16,7 @@ export default class extends wepy.app {
       'pages/myCalendar',
       'pages/user',
       'pages/create',
+      'pages/detail',
     ],
     window: {
       backgroundTextStyle: 'light',
