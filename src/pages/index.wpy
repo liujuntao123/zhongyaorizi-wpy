@@ -8,7 +8,7 @@
              wx:if="{{ records.length === 0 && loaded }}"
              :tipText.sync="noListTip"
     />
-    <view wx:for="{{records}}" wx:for-index="idx" wx:for-item="item" wx:key="*this" class="cell-box {{'color-'+idx%10}}" @tap="bindCellTap({{ idx }})">
+    <view wx:for="{{records}}" wx:for-index="idx" wx:for-item="item" wx:key="*this" class="cell-box {{'color-'+idx%5}}" @tap="bindCellTap({{ idx }})">
       <view class="order-info">
           <view class="title">{{item.name}}</view>
           <view class="date-count">
@@ -80,7 +80,7 @@ export default class Index extends wepy.page {
       },
       bindCellTap(idx){
         let id=this.records[idx]._id
-        this.$navigate('detail',{id,color:idx%10})
+        this.$navigate('detail',{id,color:idx%5})
       }
     }
 
@@ -249,35 +249,20 @@ export default class Index extends wepy.page {
 </style>
 
 <style lang="less">
-.color-0{
-    background: #A4C7D5;
+  .color-0{
+    background: #B191BD;
   }
   .color-1{
-    background: #8DB9CB;
+    background: #F7A9B9;
   }
   .color-2{
-    background: #8CC5CC;
+    background: #FFEAA7;
   }
   .color-3{
-    background: #8BD7CF;
+    background: #A5E8D9;
   }
   .color-4{
-    background: #8CE3D1;
-  }
-  .color-5{
-    background: #B5838D;
-  }
-  .color-6{
-    background: #E5989B;
-  }
-  .color-7{
-    background: #FFB4A2;
-  }
-  .color-8{
-    background: #FFCDB2;
-  }
-  .color-9{
-    background: #F8F9E1;
+    background: #91D9BA;
   }
 </style>
 

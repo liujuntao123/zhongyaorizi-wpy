@@ -157,34 +157,19 @@ export default class Detail extends wepy.page {
 
 <style lang="less">
   .color-0{
-      background-image: linear-gradient(to bottom , #A4C7D5, #fff);
+      background-image: linear-gradient(to bottom , #733988, #fff);
   }
   .color-1{
-      background-image: linear-gradient(to bottom , #8DB9CB, #fff);
+      background-image: linear-gradient(to bottom , #F16481, #fff);
   }
   .color-2{
-      background-image: linear-gradient(to bottom , #8CC5CC, #fff);
+      background-image: linear-gradient(to bottom , #FFDA61, #fff);
   }
   .color-3{
-      background-image: linear-gradient(to bottom , #8BD7CF, #fff);
+      background-image: linear-gradient(to bottom , #5ED6BB, #fff);
   }
   .color-4{
-      background-image: linear-gradient(to bottom , #8CE3D1, #fff);
-  }
-  .color-5{
-      background-image: linear-gradient(to bottom , #B5838D, #fff);
-  }
-  .color-6{
-      background-image: linear-gradient(to bottom , #E5989B, #fff);
-  }
-  .color-7{
-      background-image: linear-gradient(to bottom , #FFB4A2, #fff);
-  }
-  .color-8{
-      background-image: linear-gradient(to bottom , #FFCDB2, #fff);
-  }
-  .color-9{
-      background-image: linear-gradient(to bottom , #F8F9E1, #fff);
+      background-image: linear-gradient(to bottom , #39BB84, #fff);
   }
 </style>
 
