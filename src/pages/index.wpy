@@ -201,31 +201,6 @@ export default class Index extends wepy.page {
           }
         }
       }
-      .divide-line {
-        width: 100%;
-        height: 5rpx;
-        background: repeating-linear-gradient(-45deg, rgb(229, 109, 102) 0%, rgb(229, 109, 102) 2%, rgb(256, 256, 256) 2%, rgb(256, 256, 256) 4%, rgb(63, 199, 22) 4%, rgb(63, 199, 22) 6%, rgb(256, 256, 256) 6%, rgb(256, 256, 256) 8%);
-      }
-      .receive-info {
-        padding: 30rpx;
-        font-size: 28rpx;
-        .row {
-          .label, .name, .phone, .address-detail, .message-detail {
-            display: inline-block;
-          }
-          .label {
-            vertical-align: top;
-            width: 142rpx;
-            color: #999999;
-          }
-          .name {
-            width: 532rpx;
-          }
-        }
-        .message {
-          margin-bottom: 0;
-        }
-      }
     }
   }
   .button-container{
@@ -242,7 +217,7 @@ export default class Index extends wepy.page {
       width:60px;
       height:60px;
       color:#fff;
-      background:#19be6b;
+      background:#2d8cf0;
       border-radius:50%;
       line-height:75px;
       text-align:center;
