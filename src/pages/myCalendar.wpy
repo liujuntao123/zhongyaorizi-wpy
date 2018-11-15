@@ -30,10 +30,10 @@
             </view>
         </view>
         <view class="button-container">
-            <view wx:if="{{activeDay!=today}}" class="my-button primary" @tap="handleResetDay" type="success" shape="circle">
+            <view wx:if="{{activeDay!=today}}" class="my-button" @tap="handleResetDay" type="success" shape="circle">
                 今
             </view>
-            <view class="my-button" @tap="handleCreateRecord" type="success" shape="circle">
+            <view class="my-button primary" @tap="handleCreateRecord" type="success" shape="circle">
                 <view class="plus-icon"></view>
             </view>
         </view>
