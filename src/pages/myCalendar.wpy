@@ -43,139 +43,141 @@
 <script>
 import wepy from 'wepy'
 import {showTip, loading, loaded} from '../utils/tip'
-import {formatDate,fixSingleNumber} from '../utils/formater'
+import {formatDate, fixSingleNumber} from '../utils/formater'
 import {getRecords} from '../api/getRecords'
 import filter from '../wxs/filter.wxs'
 
 export default class MyCalendar extends wepy.page {
-    config={
-        navigationBarTitleText: '日历',
-        usingComponents: {
-            "i-button": "../resource/button/index",
-            "i-tag": "../resource/tag/index",
-            "calendar": "plugin://calendar/calendar"
-        }
+  config={
+    navigationBarTitleText: '日历',
+    navigationBarBackgroundColor: '#EEE0CB',
+    usingComponents: {
+      'i-button': '../resource/button/index',
+      'i-tag': '../resource/tag/index',
+      'calendar': 'plugin://calendar/calendar'
     }
+  }
 
-    data={
-        year: new Date().getFullYear(),      // 年份
-        month: new Date().getMonth() + 1,    // 月份
-        days_style: [],
-        records:[],
-        activeDay:'',
-        items:[],
-        today:formatDate(new Date()),
+  data={
+    year: new Date().getFullYear(),      // 年份
+    month: new Date().getMonth() + 1,    // 月份
+    days_style: [],
+    records: [],
+    activeDay: '',
+    items: [],
+    today: formatDate(new Date())
+  }
+
+  wxs={
+    filter: filter
+  }
+
+  onShareAppMessage(o) {
+    return {
+      imageUrl: '../assets/images/cover.png'
     }
+  }
 
-    wxs={
-        filter:filter
-    }
+  loadDayStyle() {
+    const days_count = new Date(this.year, this.month, 0).getDate()
+    const today = new Date().getDate()
+    const toMonth = new Date().getMonth() + 1
 
-    onShareAppMessage(o){
-      return {
-        imageUrl: '../assets/images/cover.png'
+    let days_style = []
+    for (let i = 1; i <= days_count; i++) {
+      const date = new Date(this.year, this.month - 1, i)
+      const dateStr = formatDate(date)
+      if (this.activeDay == dateStr) {
+        days_style.push({
+          month: 'current', day: i, color: 'white', background: '#b49eeb'
+        })
+      } else if (i == today && this.month == toMonth) {
+        days_style.push({
+          month: 'current', day: i, color: 'white', background: '#DDDDDE'
+        })
+      } else if (this.records.some(item => item.date == dateStr)) {
+        days_style.push({
+          month: 'current', day: i, color: 'white', background: '#aad4f5'
+        })
       }
     }
 
-    loadDayStyle(){
-        const days_count = new Date(this.year, this.month, 0).getDate();
-        const today=new Date().getDate()
-        const toMonth=new Date().getMonth() + 1
-        
-        let days_style = []
-        for (let i = 1; i <= days_count; i++) {
-            const date = new Date(this.year, this.month - 1, i);
-            const dateStr=formatDate(date)
-            if(this.activeDay==dateStr){
-                days_style.push({
-                    month: 'current', day: i, color: 'white', background: '#b49eeb'
-                })
-            }else if(i==today&&this.month==toMonth){
-                days_style.push({
-                    month: 'current', day: i, color: 'white', background: '#DDDDDE'
-                })
-            }else if(this.records.some(item=>item.date==dateStr)){
-                days_style.push({
-                    month: 'current', day: i, color: 'white', background: '#aad4f5'
-                })
-            }
-            
-        }
+    this.days_style = days_style
+    this.$apply()
+  }
 
-        this.days_style=days_style
-        this.$apply()
+  getRecords() {
+    getRecords().then(res => {
+      if (res) {
+        this.records = res.result.data
+        this.loadDayStyle()
+        this.loadItems()
+      }
+      this.$apply()
+    })
+  }
+
+  loadItems() {
+    let items = []
+    for (let record of this.records) {
+      if (record.date == this.activeDay) {
+        items.push(record)
+      }
     }
+    this.items = items
+    this.$apply()
+  }
 
-    getRecords(){
-        getRecords().then(res => {
-          if (res) {
-              this.records=res.result.data
-              this.loadDayStyle()
-              this.loadItems()
-          }
-          this.$apply()
+  onLoad() {
+    this.activeDay = formatDate(new Date())
+    console.log(formatDate(new Date()))
+    this.getRecords()
+  }
+
+  methods={
+    dayClick({detail}) {
+      this.activeDay = detail.year + '-' + fixSingleNumber(detail.month) + '-' + fixSingleNumber(detail.day)
+      this.loadDayStyle()
+      this.loadItems()
+    },
+    monthChange({detail}) {
+      console.log(detail)
+      this.year = detail.currentYear
+      this.month = detail.currentMonth
+      this.loadDayStyle()
+    },
+    dateChange({detail}) {
+      console.log(detail)
+      this.year = detail.currentYear
+      this.month = detail.currentMonth
+      this.loadDayStyle()
+    },
+    bindItemTap(item) {
+      let id = item._id
+      wx.navigateTo({
+        url: '/pages/create?id=' + id
+      })
+    },
+    handleResetDay() {
+      this.activeDay = this.today
+      this.loadDayStyle()
+      this.loadItems()
+    },
+    handleCreateRecord() {
+      wx.navigateTo({
+        url: '/pages/create?date=' + this.activeDay
       })
     }
 
-    loadItems(){
-        let items=[]
-        for(let record of this.records){
-            if(record.date==this.activeDay){
-                items.push(record)
-            }
-        }
-        this.items=items
-        this.$apply()
-    }
-
-    onShow(){
-        this.activeDay=formatDate(new Date())
-        console.log(formatDate(new Date()))
-        this.getRecords()
-    }
-
-    methods={
-        dayClick({detail}){
-            this.activeDay=detail.year+'-'+fixSingleNumber(detail.month)+'-'+fixSingleNumber(detail.day)
-            this.loadDayStyle()
-            this.loadItems()
-        },
-        monthChange({detail}){
-            console.log(detail)
-            this.year=detail.currentYear
-            this.month=detail.currentMonth
-            this.loadDayStyle()
-        },
-        dateChange({detail}){
-            console.log(detail)
-            this.year=detail.currentYear
-            this.month=detail.currentMonth
-            this.loadDayStyle()
-        },
-        bindItemTap(item){
-            let id=item._id
-            wx.navigateTo({
-                url:'/pages/create?id='+id,
-            })
-        },
-        handleResetDay(){
-            this.activeDay=this.today
-            this.loadDayStyle()
-            this.loadItems()
-        },
-        handleCreateRecord(){
-            wx.navigateTo({
-                url:'/pages/create?date='+this.activeDay
-            })
-        },
-
-    }
+  }
 }
 </script>
 
 <style lang="less">
 .container{
     position: relative;
+    background: #EEE0CB;
+    height: 100%;
 }
 .calendar-container{
     width: 100%;
@@ -240,7 +242,7 @@ export default class MyCalendar extends wepy.page {
   }
   
   .calendar-calendar {
-    background-color: white;
+    // background-color: white;
     padding-top: 10px;
   }
   
@@ -281,26 +283,20 @@ export default class MyCalendar extends wepy.page {
     color: #333333;
   }
 
-  .section_title .cnt {
-    font-family: PingFangSC-Regular;
-    font-size: 28rpx;
-    color: #7B8196;
-    align-self: center;
-    -webkit-align-self: center;
-  }
-
-  .list {
-    background: #F3F5F9;
+  .list{
+      padding: 20rpx;
   }
 
   .cell {
     /*display: flex;*/
     position: relative;
-    height: 100rpx;
     margin-bottom: 2rpx;
-    background-color: white;
-    padding: 50rpx;
-    line-height: 100rpx;
+    padding: 30rpx 50rpx;
+    margin-top: 10rpx;
+    box-shadow: 2px 2px 2px 0 rgba(0,0,0,0.3);
+    border-radius: 12px;
+    background-image: url(http://img02.tooopen.com/images/20160415/tooopen_sy_159429511652.jpg);
+    background-size: cover;
     .item_title {
       font-family: PingFangSC-Medium;
       font-size: 38rpx;
@@ -365,4 +361,3 @@ export default class MyCalendar extends wepy.page {
   
   
 </style>
-

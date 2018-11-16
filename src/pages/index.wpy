@@ -12,9 +12,10 @@
       <view class="order-info">
           <view class="title">{{item.name}}</view>
           <view class="date-count">
-            <text class="dateText">{{item.dateText}} </text>
+            <text wx:if="{{item.dateCount!='0'}}" class="dateText">{{item.dateText}} </text>
             <text wx:if="{{item.dateCount!='0'}}" class="dateCount">{{item.dateCount}}</text>
             <text wx:if="{{item.dateCount!='0'}}"> 天</text>
+            <text wx:if="{{item.dateCount=='0'}}" class="date-tody">今天</text>
           </view>
       </view>
     </view>
@@ -33,113 +34,115 @@ import {getRecords} from '../api/getRecords'
 import {showTip, loading, loaded} from '../utils/tip'
 import filter from '../wxs/filter.wxs'
 
-
 export default class Index extends wepy.page {
-    config={
-      navigationBarTitleText: '重要日子助手',
-      usingComponents: {
-          "i-button": "../resource/button/index",
-          "i-tag": "../resource/tag/index",
-      }
+  config={
+    navigationBarTitleText: '重要日子助手',
+    navigationBarBackgroundColor: '#EEE0CB',
+    usingComponents: {
+      'i-button': '../resource/button/index',
+      'i-tag': '../resource/tag/index'
     }
+  }
 
-    components = {
-      'default': defaultContent,
+  components = {
+    'default': defaultContent
+  }
+
+  wxs = {
+    filter: filter
+  }
+
+  data={
+    records: [],
+    active: '0',
+    noListTip: '你还没有重要日子，快来创建一个吧！',
+    loaded: false
+  }
+
+  onLoad(query) {
+    console.log('on load')
+    this.getRecords()
+  }
+
+  onShareAppMessage(o) {
+    return {
+      imageUrl: '../assets/images/cover.png'
     }
+  }
 
-    wxs = {
-      filter: filter
-    }
-    
-    data={
-        records:[],
-        active:'0', 
-        noListTip:'你还没有重要日子，快来创建一个吧！',
-        loaded:false
-    }
-
-    onShow(query){
-      console.log('on load')
-      this.getRecords()
-    }
-
-    onShareAppMessage(o){
-      return {
-        imageUrl: '../assets/images/cover.png'
-      }
-    }
-
-    methods = {
-      handleCreateRecord(){
-        wx.navigateTo({
-          url:'/pages/create'
-        })
-      },
-      onCheckTab(){
-
-      },
-      bindCellTap(idx){
-        let id=this.records[idx]._id
-        this.$navigate('detail',{id,color:idx%5})
-      }
-    }
-
-    onReachBottom() {
-      console.log("onReachBottom")
-    }
-
-    initData(data){
-      data.forEach(element => {
-        const fixSingleNumber=number=>number<=9?'0'+number:number
-        let date = new Date(element.date)
-        let today = new Date()
-        today=new Date(today.getFullYear() + '-' + fixSingleNumber(today.getMonth() + 1) + '-' + fixSingleNumber(today.getDate()))
-        let dateDiff = today.getTime() - date.getTime() //时间差的毫秒数
-        let dayDiff = Math.floor(dateDiff / (24 * 3600 * 1000))
-        let text=''
-        let tagText=''
-        let color=''
-        if(dayDiff>0){
-          text='过去'
-          tagText='纪念日'
-          color='blue'
-        }else if(dayDiff<0){
-          text='剩下'
-          tagText='倒数日'
-          color='yellow'
-        }else{
-          text='就在今天'
-          tagText='今天'
-          color='red'
-        }
-        element.dateText=text
-        element.dateCount=Math.abs(dayDiff)
-        element.tagText=tagText
-        element.color=color
+  methods = {
+    handleCreateRecord() {
+      wx.navigateTo({
+        url: '/pages/create'
       })
-      return data
-    }
+    },
+    onCheckTab() {
 
-    getRecords(){
-      getRecords().then(res => {
-        if (res) {
-          this.loaded=true
-            let data = res.result.data
-            data=this.initData(data)
-            this.records=data
-            console.log(data)
-          }
-          this.$apply()
-      })
+    },
+    bindCellTap(idx) {
+      let id = this.records[idx]._id
+      this.$navigate('detail', {id, color: idx % 5})
     }
+  }
 
+  onReachBottom() {
+    console.log('onReachBottom')
+  }
+
+  initData(data) {
+    data.forEach(element => {
+      const fixSingleNumber = number => number <= 9 ? '0' + number : number
+      let date = new Date(element.date)
+      let today = new Date()
+      today = new Date(today.getFullYear() + '-' + fixSingleNumber(today.getMonth() + 1) + '-' + fixSingleNumber(today.getDate()))
+      let dateDiff = today.getTime() - date.getTime() // 时间差的毫秒数
+      let dayDiff = Math.floor(dateDiff / (24 * 3600 * 1000))
+      let text = ''
+      let tagText = ''
+      let color = ''
+      if (dayDiff > 0) {
+        text = '过去'
+        tagText = '纪念日'
+        color = 'blue'
+      } else if (dayDiff < 0) {
+        text = '剩下'
+        tagText = '倒数日'
+        color = 'yellow'
+      } else {
+        text = '就在今天'
+        tagText = '今天'
+        color = 'red'
+      }
+      element.dateText = text
+      element.dateCount = Math.abs(dayDiff)
+      element.tagText = tagText
+      element.color = color
+    })
+    return data
+  }
+
+  getRecords() {
+    getRecords().then(res => {
+      if (res) {
+        this.loaded = true
+        let data = res.result.data
+        data = this.initData(data)
+        this.records = data
+        console.log(data)
+      }
+      this.$apply()
+    })
+  }
 }
 </script>
 
 <style lang="less" scoped>
 .container {
-    background: #e8e8e8;
+    background: #EEE0CB;
     padding-top: 1rpx;
+    padding: 0rpx 30rpx;
+    overflow: hidden;
+    min-height: 100%;
     .tab-bar {
       display: flex;
       display: -webkit-flex;
@@ -180,25 +183,40 @@ export default class Index extends wepy.page {
 
     .cell-box {
       overflow: hidden;
+      margin-top: 30rpx;
+      box-shadow: 5px 5px 5px 0 rgba(0,0,0,0.3);
+      border-radius: 12px;
+      background-image: url(http://img02.tooopen.com/images/20160415/tooopen_sy_159429511652.jpg);
+      background-size: cover;
       .order-info {
         // height: 100rpx;
-        padding: 80rpx 50rpx;
+        padding: 50rpx 50rpx;
         .title {
           display: inline-block;
-          font-size: 40rpx;
+          font-size: 38rpx;
           color: #333333;
           font-weight: bold;
-          width: 70%;
+          width: 60%;
+          overflow: hidden;
         }
         .date-count {
           display: inline-block;
-          font-size: 24rpx;
+          font-size: 28rpx;
           text-align: right;
-          width: 30%;
+          width: 40%;
+          overflow: hidden;
           .dateCount{
             font-weight: bold;
-            font-size: 48rpx;
+            font-size: 54rpx;
+            color: #044B7F;
+            font: italic 2em Georgia, serif;
           }
+          .date-tody{
+            color: #044B7F;
+            font-weight: bold;
+            font: italic 2em Georgia, serif;
+            font-size: 46rpx;
+            }
         }
       }
     }
@@ -247,23 +265,3 @@ export default class Index extends wepy.page {
   }
 
 </style>
-
-<style lang="less">
-  .color-0{
-    background: #B191BD;
-  }
-  .color-1{
-    background: #F7A9B9;
-  }
-  .color-2{
-    background: #FFEAA7;
-  }
-  .color-3{
-    background: #A5E8D9;
-  }
-  .color-4{
-    background: #91D9BA;
-  }
-</style>
-
-

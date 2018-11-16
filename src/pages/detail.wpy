@@ -1,6 +1,8 @@
 <template>
-    <view class="container color-{{color}}">
-        <view class="card">
+    <view class="container">
+        <view wx:if="{{record.date}}" class="card">
+            <view class="card-back"></view>
+            <view class="content">
             <view class="title">{{record.name}}</view>
             <view class="date-count">
                 <text wx:if="{{record.dateCount!='0'}}" class="date-text">{{record.dateText}}</text>
@@ -9,10 +11,13 @@
                 <text wx:if="{{record.dateCount=='0'}}" class="date-tody">就在今天</text>
                 </view>
             <view class="date">{{record.date}}</view>
-            <view wx:if="{{record.remarks}}" class="remarks">{{record.remarks}}</view>
-        </view>
+            <view class="remarks">{{record.remarks}}</view>
         <view class="btn-container">
-            <i-button bind:click="handleEditRecord" shape="circle" type="primary">编辑</i-button>
+            <view class="my-button" @tap="handleEditRecord" >
+            编辑
+        </view>
+        </view>
+            </view>
         </view>
     </view>
 </template>
@@ -23,82 +28,83 @@ import {cloudFunction} from '../utils/cloudFunction'
 import {showTip, loading, loaded, showSuccess} from '../utils/tip'
 
 export default class Detail extends wepy.page {
-    config={
-        navigationBarTitleText: '重要日子助手',
-        usingComponents: {
-            "i-button": "../resource/button/index",
+  config={
+    navigationBarTitleText: '重要日子助手',
+    navigationBarBackgroundColor: '#EEE0CB',
+    usingComponents: {
+      'i-button': '../resource/button/index'
+    }
+  }
+
+  data={
+    record: {},
+    id: '',
+    color: ''
+  }
+
+  methods={
+    handleEditRecord() {
+      this.$navigate('create', {id: this.id})
+    }
+  }
+
+  onShareAppMessage(o) {
+    return {
+      imageUrl: '../assets/images/cover.png'
+    }
+  }
+
+  onLoad(query) {
+    console.log(query)
+    if (query) {
+      this.id = query.id
+      this.color = query.color
+    }
+    this.initData()
+    this.$apply()
+  }
+
+  initData() {
+    loading()
+    cloudFunction('getRecords', {data: {id: this.id}}).then(res => {
+      loaded()
+      this.loaded = true
+      if (res) {
+        let element = res.result.data
+        const fixSingleNumber = number => number <= 9 ? '0' + number : number
+        let date = new Date(element.date)
+        let today = new Date()
+        today = new Date(today.getFullYear() + '-' + fixSingleNumber(today.getMonth() + 1) + '-' + fixSingleNumber(today.getDate()))
+        let dateDiff = today.getTime() - date.getTime() // 时间差的毫秒数
+        let dayDiff = Math.floor(dateDiff / (24 * 3600 * 1000))
+        let text = ''
+        let tagText = ''
+        let color = ''
+        if (dayDiff > 0) {
+          text = '过去'
+          tagText = '纪念日'
+          color = 'blue'
+        } else if (dayDiff < 0) {
+          text = '剩下'
+          tagText = '倒数日'
+          color = 'yellow'
+        } else {
+          text = '就在今天'
+          tagText = '今天'
+          color = 'red'
         }
-    }
-
-    data={
-        record:{},
-        id:'',
-        color:'',
-    }
-
-    methods={
-        handleEditRecord(){
-            this.$navigate('create',{id:this.id})
-        }
-    }
-
-    onShareAppMessage(o){
-      return {
-        imageUrl: '../assets/images/cover.png'
+        element.dateText = text
+        element.dateCount = Math.abs(dayDiff)
+        element.tagText = tagText
+        element.color = color
+        this.record = element
       }
-    }
-
-    onLoad(query){
-        console.log(query)
-        if(query){
-            this.id=query.id
-            this.color=query.color
-        }
-        this.initData()
-        this.$apply()
-    }
-
-    initData(){
-        loading()
-        cloudFunction('getRecords',{data:{id:this.id}}).then(res => {
-            loaded()
-            this.loaded=true
-            if (res) {
-                let element = res.result.data
-                const fixSingleNumber=number=>number<=9?'0'+number:number
-                let date = new Date(element.date)
-                let today = new Date()
-                today=new Date(today.getFullYear() + '-' + fixSingleNumber(today.getMonth() + 1) + '-' + fixSingleNumber(today.getDate()))
-                let dateDiff = today.getTime() - date.getTime() //时间差的毫秒数
-                let dayDiff = Math.floor(dateDiff / (24 * 3600 * 1000))
-                let text=''
-                let tagText=''
-                let color=''
-                if(dayDiff>0){
-                text='过去'
-                tagText='纪念日'
-                color='blue'
-                }else if(dayDiff<0){
-                text='剩下'
-                tagText='倒数日'
-                color='yellow'
-                }else{
-                text='就在今天'
-                tagText='今天'
-                color='red'
-                }
-                element.dateText=text
-                element.dateCount=Math.abs(dayDiff)
-                element.tagText=tagText
-                element.color=color
-                this.record=element
-            }
-            this.$apply()
-        }).catch(err=>{
-            console.log('拉取失败')
-            loaded()
-        })
-    }
+      this.$apply()
+    }).catch(err => {
+      console.log('拉取失败')
+      loaded()
+    })
+  }
 }
 </script>
 
@@ -108,39 +114,62 @@ export default class Detail extends wepy.page {
     overflow: hidden;
     height: 100%;
     .card{
-        width: 500rpx;
-        height: 800rpx;
-        margin: 60rpx auto;
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='450'%3E%3Cpath d='M172,217L217,284L231,223Z' fill='%23ecf6e2' stroke='%23ecf6e2' stroke-width='1.51'/%3E%3Cpath d='M172,217L151,304L217,284Z' fill='%23eef7e1' stroke='%23eef7e1' stroke-width='1.51'/%3E%3Cpath d='M217,284L286,286L231,223Z' fill='%23d5ebe6' stroke='%23d5ebe6' stroke-width='1.51'/%3E%3Cpath d='M221,372L286,286L217,284Z' fill='%23c6e6f0' stroke='%23c6e6f0' stroke-width='1.51'/%3E%3Cpath d='M231,223L228,149L172,217Z' fill='%23eff1d1' stroke='%23eff1d1' stroke-width='1.51'/%3E%3Cpath d='M307,159L228,149L231,223Z' fill='%23dbe1c4' stroke='%23dbe1c4' stroke-width='1.51'/%3E%3Cpath d='M172,217L87,246L151,304Z' fill='%23f9f8c6' stroke='%23f9f8c6' stroke-width='1.51'/%3E%3Cpath d='M131,140L87,246L172,217Z' fill='%23fff3ae' stroke='%23fff3ae' stroke-width='1.51'/%3E%3Cpath d='M151,304L221,372L217,284Z' fill='%23d9eff1' stroke='%23d9eff1' stroke-width='1.51'/%3E%3Cpath d='M134,371L221,372L151,304Z' fill='%23d8ece0' stroke='%23d8ece0' stroke-width='1.51'/%3E%3Cpath d='M228,149L131,140L172,217Z' fill='%23f9efba' stroke='%23f9efba' stroke-width='1.51'/%3E%3Cpath d='M286,286L324,211L231,223Z' fill='%23cae1d6' stroke='%23cae1d6' stroke-width='1.51'/%3E%3Cpath d='M61,296L134,371L151,304Z' fill='%23e8e9ca' stroke='%23e8e9ca' stroke-width='1.51'/%3E%3Cpath d='M324,211L307,159L231,223Z' fill='%23cbd9c5' stroke='%23cbd9c5' stroke-width='1.51'/%3E%3Cpath d='M87,246L61,296L151,304Z' fill='%23f5ebc1' stroke='%23f5ebc1' stroke-width='1.51'/%3E%3Cpath d='M4,203L61,296L87,246Z' fill='%23fed89d' stroke='%23fed89d' stroke-width='1.51'/%3E%3Cpath d='M131,140L74,151L87,246Z' fill='%23ffe598' stroke='%23ffe598' stroke-width='1.51'/%3E%3Cpath d='M131,140L68,89L74,151Z' fill='%23ffd383' stroke='%23ffd383' stroke-width='1.51'/%3E%3Cpath d='M228,149L170,87L131,140Z' fill='%23fbe1ab' stroke='%23fbe1ab' stroke-width='1.51'/%3E%3Cpath d='M234,65L170,87L228,149Z' fill='%23f3d4b0' stroke='%23f3d4b0' stroke-width='1.51'/%3E%3Cpath d='M221,372L315,367L286,286Z' fill='%23abd6e7' stroke='%23abd6e7' stroke-width='1.51'/%3E%3Cpath d='M286,286L395,236L324,211Z' fill='%23b1c6cb' stroke='%23b1c6cb' stroke-width='1.51'/%3E%3Cpath d='M61,296L57,361L134,371Z' fill='%23e3daba' stroke='%23e3daba' stroke-width='1.51'/%3E%3Cpath d='M297,85L234,65L228,149Z' fill='%23e1c9aa' stroke='%23e1c9aa' stroke-width='1.51'/%3E%3Cpath d='M366,90L297,85L307,159Z' fill='%23c1afa0' stroke='%23c1afa0' stroke-width='1.51'/%3E%3Cpath d='M307,159L297,85L228,149Z' fill='%23d4cbb1' stroke='%23d4cbb1' stroke-width='1.51'/%3E%3Cpath d='M221,372L238,438L315,367Z' fill='%239fcfe4' stroke='%239fcfe4' stroke-width='1.51'/%3E%3Cpath d='M168,452L238,438L221,372Z' fill='%23add2e6' stroke='%23add2e6' stroke-width='1.51'/%3E%3Cpath d='M168,452L221,372L134,371Z' fill='%23c3dddb' stroke='%23c3dddb' stroke-width='1.51'/%3E%3Cpath d='M324,211L368,152L307,159Z' fill='%23babdb3' stroke='%23babdb3' stroke-width='1.51'/%3E%3Cpath d='M395,236L368,152L324,211Z' fill='%23adb3b4' stroke='%23adb3b4' stroke-width='1.51'/%3E%3Cpath d='M402,322L395,236L286,286Z' fill='%239cb4d2' stroke='%239cb4d2' stroke-width='1.51'/%3E%3Cpath d='M74,151L4,203L87,246Z' fill='%23ffd78c' stroke='%23ffd78c' stroke-width='1.51'/%3E%3Cpath d='M61,296L-4,318L57,361Z' fill='%23ecc8a7' stroke='%23ecc8a7' stroke-width='1.51'/%3E%3Cpath d='M170,87L68,89L131,140Z' fill='%23ffd58a' stroke='%23ffd58a' stroke-width='1.51'/%3E%3Cpath d='M74,151L-25,138L4,203Z' fill='%23febb73' stroke='%23febb73' stroke-width='1.51'/%3E%3Cpath d='M88,-2L68,89L170,87Z' fill='%23ffbe77' stroke='%23ffbe77' stroke-width='1.51'/%3E%3Cpath d='M91,467L168,452L134,371Z' fill='%23c1d0c1' stroke='%23c1d0c1' stroke-width='1.51'/%3E%3Cpath d='M57,361L91,467L134,371Z' fill='%23cecfb6' stroke='%23cecfb6' stroke-width='1.51'/%3E%3Cpath d='M4,203L-4,318L61,296Z' fill='%23fac69c' stroke='%23fac69c' stroke-width='1.51'/%3E%3Cpath d='M315,367L402,322L286,286Z' fill='%2396bddb' stroke='%2396bddb' stroke-width='1.51'/%3E%3Cpath d='M398,380L402,322L315,367Z' fill='%237ca2cd' stroke='%237ca2cd' stroke-width='1.51'/%3E%3Cpath d='M-4,318L9,372L57,361Z' fill='%23e4ba9f' stroke='%23e4ba9f' stroke-width='1.51'/%3E%3Cpath d='M395,236L366,90L368,152Z' fill='%23aca1a3' stroke='%23aca1a3' stroke-width='1.51'/%3E%3Cpath d='M368,152L366,90L307,159Z' fill='%23b7aaa1' stroke='%23b7aaa1' stroke-width='1.51'/%3E%3Cpath d='M300,15L238,17L234,65Z' fill='%23e0ac98' stroke='%23e0ac98' stroke-width='1.51'/%3E%3Cpath d='M238,438L321,443L315,367Z' fill='%2385bad8' stroke='%2385bad8' stroke-width='1.51'/%3E%3Cpath d='M293,512L321,443L238,438Z' fill='%2378aad0' stroke='%2378aad0' stroke-width='1.51'/%3E%3Cpath d='M234,65L238,17L170,87Z' fill='%23f2c0a3' stroke='%23f2c0a3' stroke-width='1.51'/%3E%3Cpath d='M300,15L234,65L297,85Z' fill='%23d7ae9a' stroke='%23d7ae9a' stroke-width='1.51'/%3E%3Cpath d='M321,443L398,380L315,367Z' fill='%2374a5ce' stroke='%2374a5ce' stroke-width='1.51'/%3E%3Cpath d='M234,548L293,512L238,438Z' fill='%237ca6cf' stroke='%237ca6cf' stroke-width='1.51'/%3E%3Cpath d='M1,433L91,467L57,361Z' fill='%23cbb4a0' stroke='%23cbb4a0' stroke-width='1.51'/%3E%3Cpath d='M4,203L-68,300L-4,318Z' fill='%23f7ae8f' stroke='%23f7ae8f' stroke-width='1.51'/%3E%3Cpath d='M68,89L-25,138L74,151Z' fill='%23feba6d' stroke='%23feba6d' stroke-width='1.51'/%3E%3Cpath d='M366,90L300,15L297,85Z' fill='%23c49e92' stroke='%23c49e92' stroke-width='1.51'/%3E%3Cpath d='M9,372L1,433L57,361Z' fill='%23d7b09b' stroke='%23d7b09b' stroke-width='1.51'/%3E%3Cpath d='M-85,399L1,433L9,372Z' fill='%23d0938a' stroke='%23d0938a' stroke-width='1.51'/%3E%3Cpath d='M-85,399L9,372L-4,318Z' fill='%23dd9f8f' stroke='%23dd9f8f' stroke-width='1.51'/%3E%3Cpath d='M-80,218L-68,300L4,203Z' fill='%23f6a67a' stroke='%23f6a67a' stroke-width='1.51'/%3E%3Cpath d='M68,89L-17,70L-25,138Z' fill='%23fc9f5b' stroke='%23fc9f5b' stroke-width='1.51'/%3E%3Cpath d='M127,-17L88,-2L170,87Z' fill='%23ffb377' stroke='%23ffb377' stroke-width='1.51'/%3E%3Cpath d='M127,-17L170,87L238,17Z' fill='%23fbba90' stroke='%23fbba90' stroke-width='1.51'/%3E%3Cpath d='M150,-77L127,-17L238,17Z' fill='%23f5a680' stroke='%23f5a680' stroke-width='1.51'/%3E%3Cpath d='M-25,138L-80,218L4,203Z' fill='%23f9a56c' stroke='%23f9a56c' stroke-width='1.51'/%3E%3Cpath d='M20,-15L-17,70L68,89Z' fill='%23fa9153' stroke='%23fa9153' stroke-width='1.51'/%3E%3Cpath d='M-100,126L-80,218L-25,138Z' fill='%23ee905a' stroke='%23ee905a' stroke-width='1.51'/%3E%3Cpath d='M321,443L398,472L398,380Z' fill='%235d8bc0' stroke='%235d8bc0' stroke-width='1.51'/%3E%3Cpath d='M234,548L238,438L168,452Z' fill='%2398b8d9' stroke='%2398b8d9' stroke-width='1.51'/%3E%3Cpath d='M91,467L149,543L168,452Z' fill='%23b0b9b9' stroke='%23b0b9b9' stroke-width='1.51'/%3E%3Cpath d='M82,552L149,543L91,467Z' fill='%23aba1a5' stroke='%23aba1a5' stroke-width='1.51'/%3E%3Cpath d='M293,512L398,472L321,443Z' fill='%235b8dc0' stroke='%235b8dc0' stroke-width='1.51'/%3E%3Cpath d='M398,380L398,472L402,322Z' fill='%236b87c0' stroke='%236b87c0' stroke-width='1.51'/%3E%3Cpath d='M293,512L398,536L398,472Z' fill='%234572b3' stroke='%234572b3' stroke-width='1.51'/%3E%3Cpath d='M149,543L234,548L168,452Z' fill='%239dacc9' stroke='%239dacc9' stroke-width='1.51'/%3E%3Cpath d='M88,-2L20,-15L68,89Z' fill='%23fb995a' stroke='%23fb995a' stroke-width='1.51'/%3E%3Cpath d='M66,-75L20,-15L88,-2Z' fill='%23f1844d' stroke='%23f1844d' stroke-width='1.51'/%3E%3Cpath d='M-10,550L82,552L91,467Z' fill='%23ae8a8f' stroke='%23ae8a8f' stroke-width='1.51'/%3E%3Cpath d='M-68,300L-85,399L-4,318Z' fill='%23e0988a' stroke='%23e0988a' stroke-width='1.51'/%3E%3Cpath d='M-80,218L-85,399L-68,300Z' fill='%23e19488' stroke='%23e19488' stroke-width='1.51'/%3E%3Cpath d='M-80,218L-100,126L-85,399Z' fill='%23e69777' stroke='%23e69777' stroke-width='1.51'/%3E%3Cpath d='M-76,62L-100,126L-25,138Z' fill='%23ec7d49' stroke='%23ec7d49' stroke-width='1.51'/%3E%3Cpath d='M-76,62L-25,138L-17,70Z' fill='%23f3824b' stroke='%23f3824b' stroke-width='1.51'/%3E%3Cpath d='M222,-92L150,-77L238,17Z' fill='%23eb9a8a' stroke='%23eb9a8a' stroke-width='1.51'/%3E%3Cpath d='M366,90L379,-20L300,15Z' fill='%23b98084' stroke='%23b98084' stroke-width='1.51'/%3E%3Cpath d='M395,236L379,-20L366,90Z' fill='%23af8b8f' stroke='%23af8b8f' stroke-width='1.51'/%3E%3Cpath d='M402,322L379,-20L395,236Z' fill='%23a99ba5' stroke='%23a99ba5' stroke-width='1.51'/%3E%3Cpath d='M149,543L82,552L234,548Z' fill='%23a49fb4' stroke='%23a49fb4' stroke-width='1.51'/%3E%3Cpath d='M-10,550L91,467L1,433Z' fill='%23b88f8c' stroke='%23b88f8c' stroke-width='1.51'/%3E%3Cpath d='M309,-64L238,17L300,15Z' fill='%23d19289' stroke='%23d19289' stroke-width='1.51'/%3E%3Cpath d='M127,-17L66,-75L88,-2Z' fill='%23f3955c' stroke='%23f3955c' stroke-width='1.51'/%3E%3Cpath d='M379,-20L309,-64L300,15Z' fill='%23bb787c' stroke='%23bb787c' stroke-width='1.51'/%3E%3Cpath d='M-81,12L-76,62L-17,70Z' fill='%23ea653c' stroke='%23ea653c' stroke-width='1.51'/%3E%3Cpath d='M309,-64L222,-92L238,17Z' fill='%23d79085' stroke='%23d79085' stroke-width='1.51'/%3E%3Cpath d='M-85,399L-87,444L1,433Z' fill='%23c17e7d' stroke='%23c17e7d' stroke-width='1.51'/%3E%3Cpath d='M-97,549L-87,444L-85,399Z' fill='%23a76472' stroke='%23a76472' stroke-width='1.51'/%3E%3Cpath d='M20,-15L-81,12L-17,70Z' fill='%23f16740' stroke='%23f16740' stroke-width='1.51'/%3E%3Cpath d='M150,-77L66,-75L127,-17Z' fill='%23f09460' stroke='%23f09460' stroke-width='1.51'/%3E%3Cpath d='M222,-92L66,-75L150,-77Z' fill='%23e8986c' stroke='%23e8986c' stroke-width='1.51'/%3E%3Cpath d='M234,548L398,536L293,512Z' fill='%235c82bc' stroke='%235c82bc' stroke-width='1.51'/%3E%3Cpath d='M398,472L398,536L402,322Z' fill='%235577b6' stroke='%235577b6' stroke-width='1.51'/%3E%3Cpath d='M66,-75L16,-67L20,-15Z' fill='%23eb7040' stroke='%23eb7040' stroke-width='1.51'/%3E%3Cpath d='M-64,-89L-81,12L20,-15Z' fill='%23e24830' stroke='%23e24830' stroke-width='1.51'/%3E%3Cpath d='M-76,62L-81,12L-100,126Z' fill='%23e0653e' stroke='%23e0653e' stroke-width='1.51'/%3E%3Cpath d='M-87,444L-10,550L1,433Z' fill='%23b6757b' stroke='%23b6757b' stroke-width='1.51'/%3E%3Cpath d='M379,-20L369,-105L309,-64Z' fill='%23a85f6f' stroke='%23a85f6f' stroke-width='1.51'/%3E%3Cpath d='M309,-64L369,-105L222,-92Z' fill='%23b4757a' stroke='%23b4757a' stroke-width='1.51'/%3E%3Cpath d='M-10,550L-97,549L82,552Z' fill='%23a95a75' stroke='%23a95a75' stroke-width='1.51'/%3E%3Cpath d='M-87,444L-97,549L-10,550Z' fill='%23a5546b' stroke='%23a5546b' stroke-width='1.51'/%3E%3Cpath d='M-100,126L-97,549L-85,399Z' fill='%23c88683' stroke='%23c88683' stroke-width='1.51'/%3E%3Cpath d='M16,-67L-64,-89L20,-15Z' fill='%23e35135' stroke='%23e35135' stroke-width='1.51'/%3E%3Cpath d='M66,-75L-64,-89L16,-67Z' fill='%23de5739' stroke='%23de5739' stroke-width='1.51'/%3E%3Cpath d='M222,-92L-64,-89L66,-75Z' fill='%23e27e4f' stroke='%23e27e4f' stroke-width='1.51'/%3E%3Cpath d='M369,-105L-64,-89L222,-92Z' fill='%23df927b' stroke='%23df927b' stroke-width='1.51'/%3E%3C/svg%3E");
-        background-size: cover;
-        box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+        width: 100%;
+        height: 100%;
         border-radius: 5px;
-        padding: 50rpx;
+        position: relative;
+        .card-back{
+            width: 100%;
+            height: 100%;
+            background-image: url(https://cbu01.alicdn.com/img/ibank/2015/640/778/2380877046_191033985.400x400.jpg);
+            filter: blur(2px);
+            box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+            background-size: cover;
+        }
+        .content{
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            // padding: 50rpx;
+            margin: 0 auto;
+        }
         .title{
-            color: #333333;
-            font-size: 60rpx;
+            font: italic 2em Georgia, serif;
+            color: #044B7F;
+            font-size: 70rpx;
+            padding: 200rpx 50rpx;
+            padding-top: 100rpx;
         }
         .date-count{
-            height: 350rpx;
+            height: 300rpx;
             line-height: 400rpx;
             text-align: center;
+            font-size: 60rpx;
             .dateCount{
-                font-size: 150rpx;
+                font-size: 160rpx;
                 font-weight: bold;
+                font: italic 2em Georgia, serif;
+                color: #044B7F;
             }
             .date-tody{
+                color: #044B7F;
+                font: italic 2em Georgia, serif;
                 font-size: 80rpx;
                 font-weight: bold;
             }
         }
         .date{
-            font-size: 50rpx;
+            font-size: 42rpx;
             text-align: center;
         }
         .remarks{
-            margin-top: 100rpx;
-            // background: #E6D246;
-            background: rgba(230, 210, 70, 0.3);
+            margin: 50rpx auto;
+            width: 500rpx;
+            // height: 90rpx;
+            text-align: center;
+            // background: rgba(230, 210, 70, 0.3);
             line-height: 50rpx;
             padding: 20rpx;
             font-size: 24rpx;
@@ -148,29 +177,19 @@ export default class Detail extends wepy.page {
         }
     }
     .btn-container{
-        width: 550rpx;
-        margin: 0 auto;
+        .my-button{
+            display: block;
+            margin: auto;
+            width:142rpx;
+            height:62rpx;
+            background:#EEE0CB;
+            border-radius:20px;
+            line-height:62rpx;
+            text-align:center;
+            font-size: 28rpx;
+            color: #666666;
+        }
     }
 
 }
 </style>
-
-<style lang="less">
-  .color-0{
-      background-image: linear-gradient(to bottom , #733988, #fff);
-  }
-  .color-1{
-      background-image: linear-gradient(to bottom , #F16481, #fff);
-  }
-  .color-2{
-      background-image: linear-gradient(to bottom , #FFDA61, #fff);
-  }
-  .color-3{
-      background-image: linear-gradient(to bottom , #5ED6BB, #fff);
-  }
-  .color-4{
-      background-image: linear-gradient(to bottom , #39BB84, #fff);
-  }
-</style>
-
-
