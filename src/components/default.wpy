@@ -17,7 +17,8 @@
       show: false,
       src: {
         type: String,
-        default: 'https://course-pic-test-1251001058.image.myqcloud.com/upload/547304d624f20a3d74735490839f4d9c0ece6a1e.png'
+        // default: 'https://course-pic-test-1251001058.image.myqcloud.com/upload/547304d624f20a3d74735490839f4d9c0ece6a1e.png',
+        default: '../assets/images/default.png'
       },
       tipText: {
         type: String,
@@ -50,8 +51,8 @@
     -webkit-justify-content: center;
     background-color: #F3F5F9;
     .bg_img {
-      width: 690rpx;
-      height: 650rpx;
+      width: 480rpx;
+      height: 132rpx;
       align-self: center;
       display: flex;
       display: -webkit-flex;
@@ -60,9 +61,10 @@
       width: 100%;
       height: 45rpx;
       color: #999;
-      font-size: 32rpx;
+      font-size: 38rpx;
       text-align: center;
       font-family: PingFangSC-Regular;
+      margin-top: 20rpx;
     }
     .btn-poster {
       position: fixed;

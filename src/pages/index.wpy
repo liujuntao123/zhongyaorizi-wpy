@@ -54,7 +54,7 @@ export default class Index extends wepy.page {
     data={
         records:[],
         active:'0', 
-        noListTip:'你当前没有重要日子，快来创建一个吧！',
+        noListTip:'你还没有重要日子，快来创建一个吧！',
         loaded:false
     }
 
