@@ -55,7 +55,8 @@ export default class MyCalendar extends wepy.page {
       'i-button': '../resource/button/index',
       'i-tag': '../resource/tag/index',
       'calendar': 'plugin://calendar/calendar'
-    }
+    },
+    enablePullDownRefresh: true
   }
 
   data={
@@ -76,6 +77,11 @@ export default class MyCalendar extends wepy.page {
     return {
       imageUrl: '../assets/images/cover.png'
     }
+  }
+
+  onPullDownRefresh() {
+    this.getRecords()
+    wx.stopPullDownRefresh()
   }
 
   loadDayStyle() {
@@ -269,9 +275,10 @@ export default class MyCalendar extends wepy.page {
   }
 
   .section_title {
-    height: 88rpx;
-    display: flex;
-    display: -webkit-flex;
+      padding: 20rpx 0;
+    // height: 88rpx;
+    // display: flex;
+    // display: -webkit-flex;
   }
 
   .my_works {

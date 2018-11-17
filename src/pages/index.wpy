@@ -41,7 +41,8 @@ export default class Index extends wepy.page {
     usingComponents: {
       'i-button': '../resource/button/index',
       'i-tag': '../resource/tag/index'
-    }
+    },
+    enablePullDownRefresh: true
   }
 
   components = {
@@ -62,6 +63,11 @@ export default class Index extends wepy.page {
   onLoad(query) {
     console.log('on load')
     this.getRecords()
+  }
+
+  onPullDownRefresh() {
+    this.getRecords()
+    wx.stopPullDownRefresh()
   }
 
   onShareAppMessage(o) {
