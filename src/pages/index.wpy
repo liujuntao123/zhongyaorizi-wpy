@@ -64,6 +64,14 @@ export default class Index extends wepy.page {
     this.getRecords()
   }
 
+  onShow(query) {
+    let isReloadIndex=this.$parent.isReloadIndex
+    if(isReloadIndex){
+      this.getRecords()
+    }
+    this.$parent.isReloadIndex=0
+  }
+
   onShareAppMessage(o) {
     return {
       imageUrl: '../assets/images/cover.png'
