@@ -130,8 +130,16 @@ export default class MyCalendar extends wepy.page {
 
   onLoad() {
     this.activeDay = formatDate(new Date())
-    console.log(formatDate(new Date()))
     this.getRecords()
+  }
+
+  onShow() {
+    let isReloadCalendar= this.$parent.isReloadCalendar
+    if(isReloadCalendar){
+        this.activeDay = formatDate(new Date())
+        this.getRecords()
+        this.$parent.isReloadCalendar=0
+    }
   }
 
   methods={
