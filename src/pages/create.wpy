@@ -127,6 +127,8 @@ export default class Create extends wepy.page {
         wx.switchTab({
           url: 'index'
         })
+        this.$parent.isReloadHome=1
+        this.$parent.isReloadCalendar=1
       }, 500)
     }).catch(console.error).then(() => {
       loaded()
@@ -166,6 +168,8 @@ export default class Create extends wepy.page {
             wx.switchTab({
               url: 'index'
             })
+            this.$parent.isReloadHome=1
+            this.$parent.isReloadCalendar=1
           }, 500)
         } else {
           showTip('保存失败')

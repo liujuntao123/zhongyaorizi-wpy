@@ -70,6 +70,14 @@ export default class Index extends wepy.page {
     wx.stopPullDownRefresh()
   }
 
+  onShow(query) {
+    let isReloadHome = this.$parent.isReloadHome
+    if (isReloadHome) {
+      this.getRecords()
+      this.$parent.isReloadHome = 0
+    }
+  }
+
   onShareAppMessage(o) {
     return {
       imageUrl: '../assets/images/cover.png'
