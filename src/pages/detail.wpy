@@ -50,7 +50,8 @@ export default class Detail extends wepy.page {
 
   onShareAppMessage(o) {
     return {
-      imageUrl: '../assets/images/cover.png'
+      imageUrl: '../assets/images/cover.png',
+      path: '/pages/index'
     }
   }
 
