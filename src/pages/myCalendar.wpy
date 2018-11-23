@@ -318,6 +318,7 @@ export default class MyCalendar extends wepy.page {
       font-size: 38rpx;
       display: inline-block;
       width: 40%;
+      height: 50rpx;
       overflow: hidden;
     }
     .remarks {
@@ -328,6 +329,8 @@ export default class MyCalendar extends wepy.page {
       overflow: hidden;
       text-align: right;
       width: 50%;
+      height: 50rpx;
+      line-height: 50rpx;
       margin-left: 10%;
     }
   }
